@@ -32,8 +32,8 @@ export default [
             typescript({ tsconfig: "./tsconfig.json" }),
             terser(),
             image(),
-            css(),
             json(),
+            css(),
         ],
         external: ["react", "react-dom", "styled-components"]
     },

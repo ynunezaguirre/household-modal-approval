@@ -17,7 +17,7 @@ import theme, { GlobalStyle } from '../../configs/theme';
 import IconImage from '../../assets/initbutton.png';
 import IconBancaria from '../../assets/info-bancaria.jpg';
 import IconIngresos from '../../assets/info-ingresos.jpg';
-import './style.css';
+// import './style.css';
 import Button from "../Button";
 import Modal from "../Modal";
 import ActionCard from "../ActionCard";
