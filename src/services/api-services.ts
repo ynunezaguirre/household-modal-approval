@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_BASE_API_URL || 'https://api.usehosehold.com/v1',
+  baseURL: 'https://api.usehosehold.com/v1',
 });
 
 axiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
