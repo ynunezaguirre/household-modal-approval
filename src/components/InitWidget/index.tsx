@@ -190,24 +190,23 @@ const InitWidget = (props: Props) => {
           <img src={IconImage} alt="iconbutton"/>
         </ImageIcon>
         <MessageContainer>
-          <LabelMessage>Obtén una hipoteca en minutos para esta propiedad</LabelMessage>
-          <Button label="Aplicar ya! ->" onClick={startFlow} />
+          <LabelMessage>Get prequalified for a mortgage in minutes</LabelMessage>
+          <Button label="Start" onClick={startFlow} />
         </MessageContainer>
       </InitWidgetContainer>
       <Modal
         visible={isModalVisible}
         onCancel={cleanAndClose}
         title={creditResponse?.credit?.hasCredit ?
-          'Perfecto! estamos evaluando tu crédito. Pronto nos contactaremos.' :
-          'Valida tu información y obtén esta propiedad'}>
+          'Congrats! Our system is analyzing your credit. You will receive the answer by email.' :
+          'Validate your information'}>
           <>
             {!!errorMessage && <AlertMessage>{errorMessage}</AlertMessage>}
             {formLoading && (
               <LoaderContainer>
                 <Spinner />
                 <LabelLoading>
-                  Estamos procesando y validando tu información.<br/>
-                  No cierres esta ventana.
+                 We are validating your information
                 </LabelLoading>
               </LoaderContainer>
             )}
@@ -215,27 +214,27 @@ const InitWidget = (props: Props) => {
               <>
                 <Input
                   disabled={loadingBank || loadingIncome || !!bankData || !!incomeData}
-                  placeholder="mail@mail.com"
+                  placeholder="mail"
                   onChangeText={onChangeText}
                   error={isValidEmail ? null : 'The email is invalid'} />
                 <ActionCardsContainer>
                   <ActionCard
-                    title="Validar información bancaria"
-                    description="Verificaremos tu disponibilidad para la cuota inicial del inmueble en 1 minuto"
+                    title="Bank Account Data"
+                    description="We verify your proof of funds for down payment and underwrite you using the 6 last months of your bank statement."
                     icon={IconBancaria} 
                     success={!!bankData}
                     loading={loadingBank}
                     onPress={() => generatePlaidToken(CONSTANTS.PLAID_TYPE_ASSETS)}/>
                   <ActionCard
-                    title="Validar mis ingresos"
-                    description="Verificaremos tu capacidad de pago en 1 minuto"
+                    title="Income Verification"
+                    description="We verify your income to analyze your capacity of repayment"
                     loading={loadingIncome}
                     success={!!incomeData}
                     onPress={() => generatePlaidToken(CONSTANTS.PLAID_TYPE_INCOME)}
                     icon={IconIngresos} />
                 </ActionCardsContainer>
                 <ActionsButton>
-                  <Button disabled={!formComplete} label="Procesar información" onClick={processForm} />
+                  <Button disabled={!formComplete} label="Get prequalified" onClick={processForm} />
                 </ActionsButton>
               </>
             )}
@@ -261,7 +260,7 @@ const InitWidget = (props: Props) => {
                   </tr>
                 </TableCredit> */}
                 <ActionsButton>
-                  <Button label="Cerrar" onClick={cleanAndClose} />
+                  <Button label="Cool" onClick={cleanAndClose} />
                 </ActionsButton>
               </>
             )}
