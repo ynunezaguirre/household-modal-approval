@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
-import { usePlaidLink } from 'react-plaid-link';
+import { PlaidLinkError, usePlaidLink } from 'react-plaid-link';
 
 const PlaidLink = (props: Props) => {
-  const { token, handleResponse } = props;
+  const { token, handleResponse, onCancelPlaid } = props;
 
   const onSuccess = useCallback(
     (public_token, metadata) => {
@@ -15,6 +15,7 @@ const PlaidLink = (props: Props) => {
   const { open, ready, error } = usePlaidLink({
     token: token,
     onSuccess,
+    onExit: (error: null | PlaidLinkError) =>  onCancelPlaid(error),
   });
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const PlaidLink = (props: Props) => {
 
   useEffect(() => {
     if (error) {
+      console.log('error', error);
       handleResponse(null, error)
     }
   }, [error]);
@@ -34,6 +36,7 @@ const PlaidLink = (props: Props) => {
 
 type Props = {
   token: string;
+  onCancelPlaid: (error: null | PlaidLinkError) => void;
   handleResponse: (t: string | null, e: ErrorEvent | null) => void;
 };
 export default PlaidLink;

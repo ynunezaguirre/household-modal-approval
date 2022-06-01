@@ -27,6 +27,7 @@ import PlaidLink from "../PlaidLink";
 import Input from "../Input";
 import { validateEmail } from "../../utils";
 import Spinner from "../Spinner";
+import { PlaidLinkError } from "react-plaid-link";
 export interface Props {
   label: string;
 }
@@ -84,7 +85,7 @@ const InitWidget = (props: Props) => {
   };
 
   const generatePlaidToken = (type: string) => {
-    if (!isValidEmail || email.trim() ==='') {
+    if (!isValidEmail || email.trim() ==='' || loadingIncome || loadingBank) {
       return;
     }
     startLoading(type, true);
@@ -149,6 +150,16 @@ const InitWidget = (props: Props) => {
     }
     setEmail(text);
   }
+
+  const onCancelPlaid = (error: null | PlaidLinkError) => {
+    if (plaidToken?.token) {
+      startLoading(plaidToken.type, false);
+      if (error?.display_message) {
+        setErrorMessage(error.display_message);
+      }
+      setPlaidToken(null);
+    }
+  };
 
   const requestContact = () => {
 
@@ -258,6 +269,7 @@ const InitWidget = (props: Props) => {
             {plaidToken?.token && (
               <PlaidLink
                 token={plaidToken.token}
+                onCancelPlaid={onCancelPlaid}
                 handleResponse={handlePlaidResponse} />
             )}
           </>
