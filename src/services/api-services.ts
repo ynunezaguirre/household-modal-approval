@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/v1',
+  baseURL: 'https://api.usehousehold.com/v1',
 });
 
 axiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {

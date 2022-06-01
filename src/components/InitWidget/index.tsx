@@ -85,7 +85,11 @@ const InitWidget = (props: Props) => {
   };
 
   const generatePlaidToken = (type: string) => {
-    if (!isValidEmail || email.trim() ==='' || loadingIncome || loadingBank) {
+    const invalidMail = (!isValidEmail || email.trim() === '');
+    if (invalidMail || loadingIncome || loadingBank) {
+      if (invalidMail) {
+        setErrorMessage('The email is required');
+      }
       return;
     }
     startLoading(type, true);
@@ -149,6 +153,7 @@ const InitWidget = (props: Props) => {
       setValidEmail(validateEmail(text));
     }
     setEmail(text);
+    setErrorMessage(null);
   }
 
   const onCancelPlaid = (error: null | PlaidLinkError) => {
