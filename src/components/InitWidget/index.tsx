@@ -30,6 +30,7 @@ import Spinner from "../Spinner";
 import { PlaidLinkError } from "react-plaid-link";
 export interface Props {
   label: string;
+  incomeRequest?: boolean;
 }
 
 interface CreditResponse {
@@ -44,6 +45,7 @@ interface CreditResponse {
 };
 
 const InitWidget = (props: Props) => {
+  const { incomeRequest } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [formComplete, setFormComplete] = useState(false);
   const [plaidToken, setPlaidToken] = useState<null | {
@@ -62,7 +64,7 @@ const InitWidget = (props: Props) => {
   const [creditResponse, setCreditResponse] = useState<null | CreditResponse>(null);
 
   useEffect(() => {
-    if (!!bankData && !!incomeData) {
+    if (!!bankData && (!!incomeData || !incomeRequest)) {
       setFormComplete(true);
     }
   }, [bankData, incomeData]);
@@ -230,13 +232,15 @@ const InitWidget = (props: Props) => {
                     success={!!bankData}
                     loading={loadingBank}
                     onPress={() => generatePlaidToken(CONSTANTS.PLAID_TYPE_ASSETS)}/>
-                  <ActionCard
+                  {incomeRequest && (
+                    <ActionCard
                     title="Income Verification"
                     description="We verify your income to analyze your capacity of repayment"
                     loading={loadingIncome}
                     success={!!incomeData}
                     onPress={() => generatePlaidToken(CONSTANTS.PLAID_TYPE_INCOME)}
                     icon={IconIngresos} />
+                  )}
                 </ActionCardsContainer>
                 <ActionsButton>
                   <Button disabled={!formComplete} label="Get prequalified" onClick={processForm} />
@@ -279,6 +283,10 @@ const InitWidget = (props: Props) => {
           </>
       </Modal>
     </ThemeProvider>);
+};
+
+InitWidget.defaultProps = {
+  incomeRequest: true,
 };
 
 export default InitWidget;

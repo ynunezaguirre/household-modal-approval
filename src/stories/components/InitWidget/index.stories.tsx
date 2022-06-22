@@ -15,3 +15,9 @@ export const Init = Template.bind({});
 Init.args = {
   label: 'Init',
 };
+
+export const InitAssets = Template.bind({});
+InitAssets.args = {
+  label: 'Init',
+  incomeRequest: false,
+};
