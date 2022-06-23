@@ -221,7 +221,7 @@ const InitWidget = (props: Props) => {
               <>
                 <Input
                   disabled={loadingBank || loadingIncome || !!bankData || !!incomeData}
-                  placeholder="mail"
+                  placeholder="email"
                   onChangeText={onChangeText}
                   error={isValidEmail ? null : 'The email is invalid'} />
                 <ActionCardsContainer>
