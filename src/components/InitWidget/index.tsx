@@ -28,10 +28,17 @@ import Input from "../Input";
 import { validateEmail } from "../../utils";
 import Spinner from "../Spinner";
 import { PlaidLinkError } from "react-plaid-link";
+import { GetBelvoInfo, GetBelvoToken } from "../../services/belvo-services";
+
+declare global {
+  interface Window { belvoSDK: any; }
+}
 export interface Props {
   label: string;
   incomeRequest?: boolean;
+  latam?: boolean;
 }
+
 
 interface CreditResponse {
   credit?: {
@@ -45,12 +52,18 @@ interface CreditResponse {
 };
 
 const InitWidget = (props: Props) => {
-  const { incomeRequest } = props;
+  const { incomeRequest, latam } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [formComplete, setFormComplete] = useState(false);
   const [plaidToken, setPlaidToken] = useState<null | {
     token: string;
     type: string;
+  }>(null);
+  const [belvoToken, setBelvoToken] = useState<null | {
+    token: string;
+    type: string;
+    external_id?: string;
+    country_codes?: string[];
   }>(null);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const [loadingBank, setLoadingBank] = useState(false);
@@ -68,6 +81,16 @@ const InitWidget = (props: Props) => {
       setFormComplete(true);
     }
   }, [bankData, incomeData]);
+
+  useEffect(() => {
+    if (latam) {
+      const node = document.createElement('script');
+      node.src = 'https://cdn.belvo.io/belvo-widget-1-stable.js';
+      node.type = 'text/javascript';
+      node.async = true;
+      document.body.appendChild(node);
+    }
+  }, [latam]);
 
   const startFlow = () => {
     setIsModalVisible(true);
@@ -96,6 +119,14 @@ const InitWidget = (props: Props) => {
     }
     startLoading(type, true);
     setErrorMessage(null);
+    if (latam) {
+      belvoTokenFlow(type);
+    } else {
+      plaidTokenFlow(type);
+    }
+    
+  }
+  const plaidTokenFlow = (type: string) => {
     GetPlaidToken(type, email.trim()).then(tokenResponse => {
       if (tokenResponse.token) {
         setPlaidToken({
@@ -108,6 +139,70 @@ const InitWidget = (props: Props) => {
       }
     });
   }
+
+  const belvoTokenFlow = (type: string) => {
+    GetBelvoToken(type, email.trim()).then(tokenResponse => {
+      if (tokenResponse.token) {
+        setBelvoToken({
+          token: tokenResponse.token,
+          type,
+          external_id: tokenResponse.external_id,
+          country_codes: tokenResponse.country_codes,
+        });
+
+      } else if (tokenResponse.message) {
+        setErrorMessage(tokenResponse.message);
+        setLoadingBank(false);
+      }
+    });
+  }
+
+  useEffect(() => {
+    if (belvoToken?.external_id && belvoToken.token) {
+      createBelvoWidget();
+    }
+  }, [belvoToken])
+  
+
+  const createBelvoWidget = () => {
+    if (belvoToken?.external_id && belvoToken.token) {
+      const config = {
+        external_id: belvoToken.external_id,
+        locale: 'en',
+        institution_types: ['retail', 'business'],
+        callback: onBelvoResponse,
+        onExit: (data: any) => {},
+        onEvent: (data: any) =>  {
+          if (data?.eventName === 'PAGE_LOAD' && data?.meta_data?.page.indexOf('abandonSurvey') !== -1) {
+            if (belvoToken?.token) {
+              startLoading(belvoToken.type, false);
+              setBelvoToken(null);
+            }
+          }
+        },
+      }
+      window.belvoSDK.createWidget(belvoToken.token, config).build();
+    }
+  };
+
+  const onBelvoResponse = (link: string, institution: any) => {
+    if (belvoToken?.token) {
+      GetBelvoInfo({
+        institution,
+        link,
+        type: belvoToken?.type || '',
+        email,
+      }).then(response => {
+        startLoading(belvoToken.type, false, response.data);
+        if (response.message) {
+          setErrorMessage(response.message);
+        } else {
+          setPublicToken('BELVO')
+        }
+        setBelvoToken(null);
+      });
+    }
+  };
 
   const startLoading = (type: string, loading: boolean, data: unknown = null) => {
     switch(type) {
@@ -128,7 +223,6 @@ const InitWidget = (props: Props) => {
 
   const handlePlaidResponse = (publicToken: string | null, error: ErrorEvent | null) => {
     if (plaidToken?.token) {
-      
       if (error) {
         startLoading(plaidToken.type, false);
         return setErrorMessage(error.message);
@@ -166,10 +260,6 @@ const InitWidget = (props: Props) => {
       }
       setPlaidToken(null);
     }
-  };
-
-  const requestContact = () => {
-
   };
 
   const cleanAndClose = () => {
@@ -280,6 +370,7 @@ const InitWidget = (props: Props) => {
                 onCancelPlaid={onCancelPlaid}
                 handleResponse={handlePlaidResponse} />
             )}
+            <div id="belvo"></div>
           </>
       </Modal>
     </ThemeProvider>);
@@ -287,6 +378,7 @@ const InitWidget = (props: Props) => {
 
 InitWidget.defaultProps = {
   incomeRequest: true,
+  latam: false,
 };
 
 export default InitWidget;

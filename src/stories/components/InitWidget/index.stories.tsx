@@ -21,3 +21,10 @@ InitAssets.args = {
   label: 'Init',
   incomeRequest: false,
 };
+
+export const InitAssetsLatam = Template.bind({});
+InitAssetsLatam.args = {
+  label: 'Init',
+  incomeRequest: false,
+  latam: true,
+};
