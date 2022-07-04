@@ -15,8 +15,8 @@ import {
 import { ThemeProvider } from 'styled-components';
 import theme, { GlobalStyle } from '../../configs/theme';
 import IconImage from '../../assets/initbutton.png';
-import IconBancaria from '../../assets/info-bancaria.jpg';
-import IconIngresos from '../../assets/info-ingresos.jpg';
+import IconBancaria from '../../assets/info-bancaria.png';
+import IconIngresos from '../../assets/info-ingresos.png';
 // import './style.css';
 import Button from "../Button";
 import Modal from "../Modal";
@@ -311,7 +311,7 @@ const InitWidget = (props: Props) => {
               <>
                 <Input
                   disabled={loadingBank || loadingIncome || !!bankData || !!incomeData}
-                  placeholder="email"
+                  placeholder="Email"
                   onChangeText={onChangeText}
                   error={isValidEmail ? null : 'The email is invalid'} />
                 <ActionCardsContainer>
