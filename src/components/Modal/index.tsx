@@ -2,13 +2,13 @@ import React from 'react';
 import { BackgroundMask, ModalBackground, ModalBox, ModalBoxContent, ModalTabIndex, TitleModal } from './styled';
 
 const Modal = (props: Props) => {
-  const { children, visible, title, onCancel } = props;
+  const { children, visible, title, onCancel, top} = props;
   return (
     <>
       {visible && (
-        <ModalBackground >
+        <ModalBackground>
           <BackgroundMask onClick={onCancel} />
-          <ModalBox>
+          <ModalBox top={top}>
             <ModalTabIndex />
             <ModalBoxContent>
               <TitleModal>{title}</TitleModal>
@@ -27,6 +27,7 @@ type Props = {
   visible?: boolean;
   title: string;
   onCancel: () => void;
+  top?: number;
 };
 
 export default Modal;

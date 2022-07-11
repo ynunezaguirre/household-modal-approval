@@ -14,6 +14,7 @@ export const ActiveButton = styled.button<ActiveButtonType>`
   padding: 9px 20px;
   border-radius: 25px;
   border: none;
+  margin-left: 10px;
   background: ${({ theme, background }) =>
     background || theme.colors.primary};
   color: ${({ theme }) => theme.colors.white};
@@ -21,7 +22,6 @@ export const ActiveButton = styled.button<ActiveButtonType>`
   height: auto;
   cursor: pointer;
   :hover,
-  :focus,
   :active {
     background: ${({ theme, background }) =>
       background || theme.colors.primary};
@@ -32,7 +32,11 @@ export const ActiveButton = styled.button<ActiveButtonType>`
     !!disabled &&
     `
     background: ${theme.colors.disabled} !important;
-    color: ${theme.colors.whiteSoft} !important;
+    color: ${theme.colors.textDisabled} !important;
+    :hover {
+      filter: brightness(1);
+      cursor: not-allowed;
+    }
   `}
   ${({ minWidth }) =>
     !!minWidth &&

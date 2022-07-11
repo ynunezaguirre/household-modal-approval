@@ -61,35 +61,6 @@ export const GetBelvoInfo = async (params: {
   }
 };
 
-export const GetPlaidInfo = async (publicToken: string, type: string, email: string | null = null): Promise<{
-  data?: unknown;
-  type?: string;
-  message?: string;
-}> => {
-  try {
-    const response: {
-      data: unknown;
-      type: string;
-    } = await callService({
-      service: 'external/plaid_info',
-      body: {
-        email, 
-        publicToken,
-        type,
-      }
-    },
-    'post');
-    if (!response?.data) {
-      throw Error("Error getting the plaid info");
-    }
-    return response;
-  } catch (err: any) {
-    return {
-      message: err.message,
-    };
-  }
-};
-
 export const ProcessForm = async (publicToken: string, email: string | null = null): Promise<{
   credit?: unknown;
   message?: string;

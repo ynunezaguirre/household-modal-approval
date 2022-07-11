@@ -1,5 +1,14 @@
 import styled from 'styled-components';
 
+export const LoadingGlobal = styled.div`
+  color: ${({ theme }) => theme.colors.black};
+  font-family: ${({ theme }) => theme.fonts.Poppins};
+  font-size: 14px;
+  font-weight: 300;
+  text-align: center;
+  margin-top: 12px;
+`;
+
 export const InitWidgetContainer = styled.div`
   background: white;
   border-radius: 8px;
@@ -113,4 +122,12 @@ export const TableCredit = styled.table`
   .param {
     text-align: right;
   }
+`;
+
+export const CopyText = styled.p`
+  color: ${({ theme }) => theme.colors.black};
+  font-family: ${({ theme }) => theme.fonts.Poppins};
+  font-size: 14px;
+  font-weight: 300;
+  margin: 15px auto;
 `;

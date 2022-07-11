@@ -8,6 +8,7 @@ declare module 'styled-components' {
       primary: string;
       white: string;
       disabled: string;
+      textDisabled: string;
       whiteSoft: string;
       softGray: string;
       gray: string;
@@ -15,6 +16,7 @@ declare module 'styled-components' {
       blue: string;
       softGreen: string;
       red: string;
+      inputSmall: string;
     };
     fonts: {
       Poppins: string;
@@ -29,14 +31,16 @@ const AppTheme: DefaultTheme = {
     green: '#12d67d',
     primary: '#4800ff',
     white: '#fff',
-    disabled: '#29304b',
+    disabled: '#ababab',
     whiteSoft: '#dcdcdc',
+    textDisabled: '#dedede',
     softGray: '#d2d5da',
     gray: '#eff2f8',
     lightBlue: '#e6f5ff',
     blue: '#0091ff',
     softGreen: '#ecfbf4',
     red: '#fa5a59',
+    inputSmall: '#707071',
   },
   fonts: {
     Poppins: "'Poppins', sans-serif",

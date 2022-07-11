@@ -1,12 +1,19 @@
 import styled from 'styled-components';
 
-export const SpinnerContainer = styled.span`
+type SpinnerContainerType = {
+  verticalAlign?: string;
+}
+
+export const SpinnerContainer = styled.span<SpinnerContainerType>`
   .lds-spinner {
     color: official;
     display: inline-block;
     position: relative;
     width: 40px;
     height: 40px;
+    ${({ verticalAlign }) => !!verticalAlign && `
+      vertical-align: ${verticalAlign};
+    `}
   }
   .lds-spinner div {
     transform-origin: 20px 20px;

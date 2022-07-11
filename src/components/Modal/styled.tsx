@@ -23,14 +23,17 @@ export const ModalBackground = styled.div`
   z-index: 1000;
 `;
 
-export const ModalBox = styled.div`
+type ModalBoxType = {
+  top?: number;
+}
+export const ModalBox = styled.div<ModalBoxType>`
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-variant: tabular-nums;
   pointer-events: none;
   position: relative;
-  top: 100px;
+  top: ${({ top }) => top || 100}px;
   width: auto;
   max-width: calc(632px - 32px);
   margin: 0 auto;

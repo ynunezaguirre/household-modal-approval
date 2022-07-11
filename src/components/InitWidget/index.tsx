@@ -10,7 +10,8 @@ import {
   AlertMessage,
   LabelLoading,
   LoaderContainer,
-  TableCredit,
+  CopyText,
+  LoadingGlobal,
 } from "./styled";
 import { ThemeProvider } from 'styled-components';
 import theme, { GlobalStyle } from '../../configs/theme';
@@ -29,17 +30,12 @@ import { validateEmail } from "../../utils";
 import Spinner from "../Spinner";
 import { PlaidLinkError } from "react-plaid-link";
 import { GetBelvoInfo, GetBelvoToken } from "../../services/belvo-services";
+import { GetInitalData, InitalData } from "../../services/api-services";
+import MoffinScore from "../MoffinScore";
 
 declare global {
   interface Window { belvoSDK: any; }
 }
-export interface Props {
-  label: string;
-  incomeRequest?: boolean;
-  latam?: boolean;
-}
-
-
 interface CreditResponse {
   credit?: {
     amount: string;
@@ -51,9 +47,14 @@ interface CreditResponse {
   message?: string;
 };
 
-const InitWidget = (props: Props) => {
-  const { incomeRequest, latam } = props;
+const CREDIT_SCORE_SERVICES = {
+  MOFFIN: 'MOFFIN',
+};
+
+const InitWidget = () => {
+  const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isMoffinVisible, setIsMoffinVisible] = useState(false);
   const [formComplete, setFormComplete] = useState(false);
   const [plaidToken, setPlaidToken] = useState<null | {
     token: string;
@@ -69,7 +70,9 @@ const InitWidget = (props: Props) => {
   const [loadingBank, setLoadingBank] = useState(false);
   const [bankData, setBankData] = useState<null | unknown>(null);
   const [incomeData, setIncomeData] = useState<null | unknown>(null);
+  const [moffinData, setMoffinData] = useState<null | unknown>(null);
   const [loadingIncome, setLoadingIncome] = useState(false);
+  const [loadingMoffin, setLoadingMoffin] = useState(false);
   const [email, setEmail] = useState('');
   const [isValidEmail, setValidEmail] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
@@ -77,20 +80,31 @@ const InitWidget = (props: Props) => {
   const [creditResponse, setCreditResponse] = useState<null | CreditResponse>(null);
 
   useEffect(() => {
-    if (!!bankData && (!!incomeData || !incomeRequest)) {
-      setFormComplete(true);
-    }
-  }, [bankData, incomeData]);
+    GetInitalData().then(response => {
+      setGlobalInital(response);
+    });
+  }, []);
+  
 
   useEffect(() => {
-    if (latam) {
+    const checkCards =
+      (!!incomeData || !globalInitial?.income) &&
+      (!!moffinData || !globalInitial?.credit_score);
+
+    if (!!bankData && checkCards) {
+      setFormComplete(true);
+    }
+  }, [bankData, incomeData, moffinData]);
+
+  useEffect(() => {
+    if (globalInitial?.latam) {
       const node = document.createElement('script');
       node.src = 'https://cdn.belvo.io/belvo-widget-1-stable.js';
       node.type = 'text/javascript';
       node.async = true;
       document.body.appendChild(node);
     }
-  }, [latam]);
+  }, [globalInitial]);
 
   const startFlow = () => {
     setIsModalVisible(true);
@@ -109,7 +123,7 @@ const InitWidget = (props: Props) => {
     }
   };
 
-  const generatePlaidToken = (type: string) => {
+  const generateToken = (type: string) => {
     const invalidMail = (!isValidEmail || email.trim() === '');
     if (invalidMail || loadingIncome || loadingBank) {
       if (invalidMail) {
@@ -119,7 +133,9 @@ const InitWidget = (props: Props) => {
     }
     startLoading(type, true);
     setErrorMessage(null);
-    if (latam) {
+    if (type === CONSTANTS.PLAID_TYPE_SCORE) {
+      setIsMoffinVisible(true);
+    } else if (globalInitial?.latam) {
       belvoTokenFlow(type);
     } else {
       plaidTokenFlow(type);
@@ -168,7 +184,7 @@ const InitWidget = (props: Props) => {
     if (belvoToken?.external_id && belvoToken.token) {
       const config = {
         external_id: belvoToken.external_id,
-        locale: 'en',
+        locale: globalInitial?.language || 'en',
         institution_types: ['retail', 'business'],
         callback: onBelvoResponse,
         onExit: (data: any) => {},
@@ -204,7 +220,7 @@ const InitWidget = (props: Props) => {
     }
   };
 
-  const startLoading = (type: string, loading: boolean, data: unknown = null) => {
+  const startLoading = (type: string, loading: boolean, data: any = null) => {
     switch(type) {
       case CONSTANTS.PLAID_TYPE_ASSETS:
         setLoadingBank(loading);
@@ -216,6 +232,13 @@ const InitWidget = (props: Props) => {
         setLoadingIncome(loading);
         if (data) {
           setIncomeData(data);
+        }
+        break;
+      case CONSTANTS.PLAID_TYPE_SCORE:
+        setLoadingMoffin(loading);
+        if (data?.success) {
+          setMoffinData(data);
+          setPublicToken('MOFFIN');
         }
         break;
     }
@@ -269,6 +292,7 @@ const InitWidget = (props: Props) => {
     setLoadingBank(false);
     setBankData(null);
     setIncomeData(null);
+    setMoffinData(null);
     setLoadingIncome(false);
     setEmail('');
     setValidEmail(true);
@@ -278,107 +302,123 @@ const InitWidget = (props: Props) => {
     setIsModalVisible(false);
   };
 
+  const moffinProccess = (success: boolean) => {
+    setIsMoffinVisible(false);
+    setTimeout(() => {
+      startLoading(CONSTANTS.PLAID_TYPE_SCORE, false, { success });
+    }, 1500);
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <InitWidgetContainer>
+      {!globalInitial && (
+        <LoadingGlobal>
+          <Spinner />
+        </LoadingGlobal>
+      )}
+      {!!globalInitial && globalInitial.message && (
+        <LoadingGlobal>
+        {globalInitial.message}
+        </LoadingGlobal>
+      )}
+      {!!globalInitial && !!globalInitial.enums && (
+      <>
+        <InitWidgetContainer>
         <ImageIcon>
           <CircleBack />
           <img src={IconImage} alt="iconbutton"/>
         </ImageIcon>
         <MessageContainer>
-          <LabelMessage>Get prequalified for a mortgage in minutes</LabelMessage>
-          <Button label="Start" onClick={startFlow} />
+          <LabelMessage>{globalInitial.enums['CARD_WIDGET_LABEL']}</LabelMessage>
+          <Button label={globalInitial.enums['CARD_WIDGET_BUTTON']} onClick={startFlow} />
         </MessageContainer>
-      </InitWidgetContainer>
-      <Modal
-        visible={isModalVisible}
-        onCancel={cleanAndClose}
-        title={creditResponse?.credit?.hasCredit ?
-          'Congrats! Our system is analyzing your credit. You will receive the answer by email.' :
-          'Validate your information'}>
-          <>
-            {!!errorMessage && <AlertMessage>{errorMessage}</AlertMessage>}
-            {formLoading && (
-              <LoaderContainer>
-                <Spinner />
-                <LabelLoading>
-                 We are validating your information
-                </LabelLoading>
-              </LoaderContainer>
-            )}
-            {!formLoading && !creditResponse?.credit?.hasCredit && (
-              <>
-                <Input
-                  disabled={loadingBank || loadingIncome || !!bankData || !!incomeData}
-                  placeholder="Email"
-                  onChangeText={onChangeText}
-                  error={isValidEmail ? null : 'The email is invalid'} />
-                <ActionCardsContainer>
-                  <ActionCard
-                    title="Bank Account Data"
-                    description="We verify your proof of funds for down payment and underwrite you using the 6 last months of your bank statement."
-                    icon={IconBancaria} 
-                    success={!!bankData}
-                    loading={loadingBank}
-                    onPress={() => generatePlaidToken(CONSTANTS.PLAID_TYPE_ASSETS)}/>
-                  {incomeRequest && (
+        </InitWidgetContainer>
+        <Modal
+          visible={isModalVisible}
+          onCancel={cleanAndClose}
+          title={creditResponse?.credit?.hasCredit ?
+            globalInitial.enums['MODAL_TITLE_FINISH'] :
+            globalInitial.enums['MODAL_TITLE_INIT']}>
+            <>
+              {!!errorMessage && <AlertMessage>{errorMessage}</AlertMessage>}
+              {formLoading && (
+                <LoaderContainer>
+                  <Spinner />
+                  <LabelLoading>
+                  {globalInitial.enums['MODAL_LOADING_MESSAGE']}
+                  </LabelLoading>
+                </LoaderContainer>
+              )}
+              {!formLoading && !creditResponse?.credit?.hasCredit && (
+                <>
+                  <Input
+                    disabled={loadingBank || loadingIncome || !!bankData || !!incomeData}
+                    placeholder={globalInitial.enums['MODAL_EMAIL_INPUT']}
+                    onChangeText={onChangeText}
+                    error={isValidEmail ? null : globalInitial.enums['MODAL_EMAIL_INPUT_ERROR']} />
+                  <CopyText>{globalInitial.enums['MODAL_COPY']}</CopyText>
+                  <ActionCardsContainer>
                     <ActionCard
-                    title="Income Verification"
-                    description="We verify your income to analyze your capacity of repayment"
-                    loading={loadingIncome}
-                    success={!!incomeData}
-                    onPress={() => generatePlaidToken(CONSTANTS.PLAID_TYPE_INCOME)}
-                    icon={IconIngresos} />
-                  )}
-                </ActionCardsContainer>
-                <ActionsButton>
-                  <Button disabled={!formComplete} label="Get prequalified" onClick={processForm} />
-                </ActionsButton>
-              </>
-            )}
+                      title={globalInitial.enums['ACTION_CARD_BANK_TITLE']}
+                      description={globalInitial.enums['ACTION_CARD_BANK_DESCRIPTION']}
+                      icon={IconBancaria} 
+                      success={!!bankData}
+                      loading={loadingBank}
+                      onPress={() => generateToken(CONSTANTS.PLAID_TYPE_ASSETS)}/>
+                    {globalInitial.income && (
+                      <ActionCard
+                      title={globalInitial.enums['ACTION_CARD_INCOME_TITLE']}
+                      description={globalInitial.enums['ACTION_CARD_INCOME_DESCRIPTION']}
+                      loading={loadingIncome}
+                      success={!!incomeData}
+                      onPress={() => generateToken(CONSTANTS.PLAID_TYPE_INCOME)}
+                      icon={IconIngresos} />
+                    )}
+                    {globalInitial.credit_score === CREDIT_SCORE_SERVICES.MOFFIN && (
+                      <ActionCard
+                      title={globalInitial.enums['ACTION_CARD_SCORE_TITLE']}
+                      description={globalInitial.enums['ACTION_CARD_SCORE_DESCRIPTION']}
+                      loading={loadingMoffin}
+                      success={!!moffinData}
+                      onPress={() => generateToken(CONSTANTS.PLAID_TYPE_SCORE)}
+                      icon={IconIngresos} />
+                    )}
+                  </ActionCardsContainer>
+                  <ActionsButton>
+                    <Button disabled={!formComplete} label={globalInitial.enums['MODAL_BUTTON_PREQUALIFIED']} onClick={processForm} />
+                  </ActionsButton>
+                </>
+              )}
 
-            {!formLoading && creditResponse?.credit?.hasCredit && (
-              <>
-                {/* <TableCredit cellSpacing={0}>
-                  <tr className="header">
-                    <td className="param">Credito<br/>Preaprobado</td>
-                    <td className="creditValue">{creditResponse.credit.amount}</td>
-                  </tr>
-                  <tr>
-                    <td className="param">Plazo</td>
-                    <td className="value">{creditResponse.credit.period}</td>
-                  </tr>
-                  <tr>
-                    <td className="param">Tasa</td>
-                    <td className="value">{creditResponse.credit.rate}</td>
-                  </tr>
-                  <tr>
-                    <td className="param">Entrada</td>
-                    <td className="value">{creditResponse.credit.initial}</td>
-                  </tr>
-                </TableCredit> */}
-                <ActionsButton>
-                  <Button label="Cool" onClick={cleanAndClose} />
-                </ActionsButton>
-              </>
-            )}
-            
-            {plaidToken?.token && (
-              <PlaidLink
-                token={plaidToken.token}
-                onCancelPlaid={onCancelPlaid}
-                handleResponse={handlePlaidResponse} />
-            )}
-            <div id="belvo"></div>
-          </>
-      </Modal>
+              {!formLoading && creditResponse?.credit?.hasCredit && (
+                <>
+                  <ActionsButton>
+                    <Button label={globalInitial.enums['MODAL_BUTTON_FINISH']} onClick={cleanAndClose} />
+                  </ActionsButton>
+                </>
+              )}
+              
+              {plaidToken?.token && (
+                <PlaidLink
+                  token={plaidToken.token}
+                  onCancelPlaid={onCancelPlaid}
+                  handleResponse={handlePlaidResponse} />
+              )}
+              <div id="belvo"></div>
+            </>
+        </Modal>
+        <MoffinScore
+          isVisible={isMoffinVisible}
+          enums={globalInitial.enums}
+          email={email}
+          params={globalInitial.params} 
+          callback={moffinProccess}
+        />
+      </>
+      )}
+      
     </ThemeProvider>);
-};
-
-InitWidget.defaultProps = {
-  incomeRequest: true,
-  latam: false,
 };
 
 export default InitWidget;
