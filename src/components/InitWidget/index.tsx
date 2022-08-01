@@ -140,7 +140,6 @@ const InitWidget = () => {
     } else {
       plaidTokenFlow(type);
     }
-    
   }
   const plaidTokenFlow = (type: string) => {
     GetPlaidToken(type, email.trim()).then(tokenResponse => {
@@ -306,7 +305,7 @@ const InitWidget = () => {
     setIsMoffinVisible(false);
     setTimeout(() => {
       startLoading(CONSTANTS.PLAID_TYPE_SCORE, false, { success });
-    }, 1500);
+    }, 500);
   }
 
   return (

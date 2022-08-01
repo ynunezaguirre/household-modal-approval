@@ -3,7 +3,7 @@ import { InputStyled, LabelError, LabelInput, SelectStyled } from "./styled";
 
 
 const Input = (props: Props) => {
-  const { placeholder, disabled, onChangeText, error, size, label, type, items } = props;
+  const { placeholder, disabled, onChangeText, error, size, label, type, items, maxLength } = props;
   return <>
     {!!label && (
       <LabelInput>
@@ -13,6 +13,7 @@ const Input = (props: Props) => {
     )}
     {(!type || type === 'input' ) && (
       <InputStyled 
+        maxLength={maxLength}
         placeholder={placeholder} 
         disabled={disabled} 
         sizeInput={size}
@@ -47,6 +48,7 @@ type Props = {
   size?: string;
   label?: string;
   type?: string;
+  maxLength?: number;
   items?: Array<{
     label: string;
     value: string;
