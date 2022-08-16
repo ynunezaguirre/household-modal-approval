@@ -22,16 +22,16 @@ import IconIngresos from '../../assets/info-ingresos.png';
 import Button from "../Button";
 import Modal from "../Modal";
 import ActionCard from "../ActionCard";
-import { GetPlaidToken, GetPlaidInfo, ProcessForm } from "../../services/plaid-services";
+import { GetPlaidInfo, GetPlaidToken, ProcessForm } from "../../services/plaid-services";
 import { CONSTANTS } from "../../configs/constants";
 import PlaidLink from "../PlaidLink";
 import Input from "../Input";
 import { validateEmail } from "../../utils";
 import Spinner from "../Spinner";
 import { PlaidLinkError } from "react-plaid-link";
-import { GetBelvoInfo, GetBelvoToken } from "../../services/belvo-services";
 import { GetInitalData, InitalData } from "../../services/api-services";
 import MoffinScore from "../MoffinScore";
+import AssetModal from "../AssetModal";
 
 declare global {
   interface Window { belvoSDK: any; }
@@ -55,16 +55,11 @@ const InitWidget = () => {
   const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMoffinVisible, setIsMoffinVisible] = useState(false);
+  const [isAssetVisible, setIsAssetVisible] = useState(false);
   const [formComplete, setFormComplete] = useState(false);
   const [plaidToken, setPlaidToken] = useState<null | {
     token: string;
     type: string;
-  }>(null);
-  const [belvoToken, setBelvoToken] = useState<null | {
-    token: string;
-    type: string;
-    external_id?: string;
-    country_codes?: string[];
   }>(null);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
   const [loadingBank, setLoadingBank] = useState(false);
@@ -119,6 +114,7 @@ const InitWidget = () => {
           return setErrorMessage(response.message);
         }
         setCreditResponse(response as CreditResponse);
+        setPublicToken(null);
       });
     }
   };
@@ -133,14 +129,43 @@ const InitWidget = () => {
     }
     startLoading(type, true);
     setErrorMessage(null);
-    if (type === CONSTANTS.PLAID_TYPE_SCORE) {
-      setIsMoffinVisible(true);
-    } else if (globalInitial?.latam) {
-      belvoTokenFlow(type);
-    } else {
-      plaidTokenFlow(type);
+    switch (type) {
+      case CONSTANTS.TYPE_ASSETS:
+        setIsAssetVisible(true);
+        break;
+      case CONSTANTS.TYPE_SCORE:
+        setIsMoffinVisible(true);
+        break;
+      case CONSTANTS.TYPE_INCOME:
+        plaidTokenFlow(CONSTANTS.TYPE_INCOME);
+        break;
     }
   }
+
+  const startLoading = (type: string, loading: boolean, data: any = null) => {
+    switch(type) {
+      case CONSTANTS.TYPE_ASSETS:
+        setLoadingBank(loading);
+        if (data) {
+          setBankData(data);
+        }
+        break;
+      case CONSTANTS.TYPE_INCOME:
+        setLoadingIncome(loading);
+        if (data) {
+          setIncomeData(data);
+        }
+        break;
+      case CONSTANTS.TYPE_SCORE:
+        setLoadingMoffin(loading);
+        if (data?.success) {
+          setMoffinData(data);
+          setPublicToken('MOFFIN');
+        }
+        break;
+    }
+  };
+
   const plaidTokenFlow = (type: string) => {
     GetPlaidToken(type, email.trim()).then(tokenResponse => {
       if (tokenResponse.token) {
@@ -155,94 +180,6 @@ const InitWidget = () => {
     });
   }
 
-  const belvoTokenFlow = (type: string) => {
-    GetBelvoToken(type, email.trim()).then(tokenResponse => {
-      if (tokenResponse.token) {
-        setBelvoToken({
-          token: tokenResponse.token,
-          type,
-          external_id: tokenResponse.external_id,
-          country_codes: tokenResponse.country_codes,
-        });
-
-      } else if (tokenResponse.message) {
-        setErrorMessage(tokenResponse.message);
-        setLoadingBank(false);
-      }
-    });
-  }
-
-  useEffect(() => {
-    if (belvoToken?.external_id && belvoToken.token) {
-      createBelvoWidget();
-    }
-  }, [belvoToken])
-  
-
-  const createBelvoWidget = () => {
-    if (belvoToken?.external_id && belvoToken.token) {
-      const config = {
-        external_id: belvoToken.external_id,
-        locale: globalInitial?.language || 'en',
-        institution_types: ['retail', 'business'],
-        callback: onBelvoResponse,
-        onExit: (data: any) => {},
-        onEvent: (data: any) =>  {
-          if (data?.eventName === 'PAGE_LOAD' && data?.meta_data?.page.indexOf('abandonSurvey') !== -1) {
-            if (belvoToken?.token) {
-              startLoading(belvoToken.type, false);
-              setBelvoToken(null);
-            }
-          }
-        },
-      }
-      window.belvoSDK.createWidget(belvoToken.token, config).build();
-    }
-  };
-
-  const onBelvoResponse = (link: string, institution: any) => {
-    if (belvoToken?.token) {
-      GetBelvoInfo({
-        institution,
-        link,
-        type: belvoToken?.type || '',
-        email,
-      }).then(response => {
-        startLoading(belvoToken.type, false, response.data);
-        if (response.message) {
-          setErrorMessage(response.message);
-        } else {
-          setPublicToken('BELVO')
-        }
-        setBelvoToken(null);
-      });
-    }
-  };
-
-  const startLoading = (type: string, loading: boolean, data: any = null) => {
-    switch(type) {
-      case CONSTANTS.PLAID_TYPE_ASSETS:
-        setLoadingBank(loading);
-        if (data) {
-          setBankData(data);
-        }
-        break;
-      case CONSTANTS.PLAID_TYPE_INCOME:
-        setLoadingIncome(loading);
-        if (data) {
-          setIncomeData(data);
-        }
-        break;
-      case CONSTANTS.PLAID_TYPE_SCORE:
-        setLoadingMoffin(loading);
-        if (data?.success) {
-          setMoffinData(data);
-          setPublicToken('MOFFIN');
-        }
-        break;
-    }
-  };
-
   const handlePlaidResponse = (publicToken: string | null, error: ErrorEvent | null) => {
     if (plaidToken?.token) {
       if (error) {
@@ -250,9 +187,7 @@ const InitWidget = () => {
         return setErrorMessage(error.message);
       }
       if (publicToken) {
-        if (plaidToken.type === CONSTANTS.PLAID_TYPE_ASSETS) {
-          setPublicToken(publicToken);
-        }
+        setPublicToken(publicToken);
         GetPlaidInfo(publicToken, plaidToken.type, email).then(response => {
           startLoading(plaidToken.type, false, response.data);
           if (response.message) {
@@ -301,10 +236,17 @@ const InitWidget = () => {
     setIsModalVisible(false);
   };
 
+  const assetProcess = (data: null | unknown) => {
+    setIsAssetVisible(false);
+    setTimeout(() => {
+      startLoading(CONSTANTS.TYPE_ASSETS, false, data);
+    }, 100);
+  }
+
   const moffinProccess = (success: boolean) => {
     setIsMoffinVisible(false);
     setTimeout(() => {
-      startLoading(CONSTANTS.PLAID_TYPE_SCORE, false, { success });
+      startLoading(CONSTANTS.TYPE_SCORE, false, { success });
     }, 500);
   }
 
@@ -364,14 +306,14 @@ const InitWidget = () => {
                       icon={IconBancaria} 
                       success={!!bankData}
                       loading={loadingBank}
-                      onPress={() => generateToken(CONSTANTS.PLAID_TYPE_ASSETS)}/>
+                      onPress={() => generateToken(CONSTANTS.TYPE_ASSETS)}/>
                     {globalInitial.income && (
                       <ActionCard
                       title={globalInitial.enums['ACTION_CARD_INCOME_TITLE']}
                       description={globalInitial.enums['ACTION_CARD_INCOME_DESCRIPTION']}
                       loading={loadingIncome}
                       success={!!incomeData}
-                      onPress={() => generateToken(CONSTANTS.PLAID_TYPE_INCOME)}
+                      onPress={() => generateToken(CONSTANTS.TYPE_INCOME)}
                       icon={IconIngresos} />
                     )}
                     {globalInitial.credit_score === CREDIT_SCORE_SERVICES.MOFFIN && (
@@ -380,7 +322,7 @@ const InitWidget = () => {
                       description={globalInitial.enums['ACTION_CARD_SCORE_DESCRIPTION']}
                       loading={loadingMoffin}
                       success={!!moffinData}
-                      onPress={() => generateToken(CONSTANTS.PLAID_TYPE_SCORE)}
+                      onPress={() => generateToken(CONSTANTS.TYPE_SCORE)}
                       icon={IconIngresos} />
                     )}
                   </ActionCardsContainer>
@@ -404,9 +346,15 @@ const InitWidget = () => {
                   onCancelPlaid={onCancelPlaid}
                   handleResponse={handlePlaidResponse} />
               )}
-              <div id="belvo"></div>
             </>
         </Modal>
+        <AssetModal
+          isVisible={isAssetVisible}
+          enums={globalInitial.enums}
+          email={email}
+          callback={assetProcess}
+          language={globalInitial?.language}
+        />
         <MoffinScore
           isVisible={isMoffinVisible}
           enums={globalInitial.enums}

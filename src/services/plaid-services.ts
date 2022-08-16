@@ -1,5 +1,15 @@
 import { callService } from "./api-services";
 
+export interface PlaidMetadata {
+  account: Array<{
+    mask: string;
+    name: string;
+  }>,
+  institution: {
+    name: string;
+  }
+}
+
 
 export const GetPlaidToken = async (type: string, email: string): Promise<{
   message?: string;

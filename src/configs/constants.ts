@@ -1,6 +1,6 @@
 export const CONSTANTS = {
-  PLAID_TYPE_BALANCE: 'Balance',
-  PLAID_TYPE_INCOME: 'Income',
-  PLAID_TYPE_ASSETS: 'Assets',
-  PLAID_TYPE_SCORE: 'Score',
+  TYPE_BALANCE: 'Balance',
+  TYPE_INCOME: 'Income',
+  TYPE_ASSETS: 'Assets',
+  TYPE_SCORE: 'Score',
 };

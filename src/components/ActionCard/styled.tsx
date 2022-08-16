@@ -2,10 +2,9 @@ import styled from 'styled-components';
 
 type ActionCardType = {
   success?: boolean;
+  plain?: boolean;
 }
 export const ActionCardContainer = styled.div<ActionCardType>`
-  border: 1px solid ${({ theme }) => theme.colors.softGray};
-  border-radius: 5px;
   background: ${({ theme }) => theme.colors.white};
   padding: 19px 24px;
   display: inline-flex;
@@ -13,11 +12,17 @@ export const ActionCardContainer = styled.div<ActionCardType>`
   gap: 20px;
   width: calc(100% - 48px);
   margin-bottom: 12px;
-  :hover {
-    background: ${({ theme, success }) => !!success ? theme.colors.softGreen : theme.colors.lightBlue};
-    border: 1px solid ${({ theme, success }) => !!success ? theme.colors.green : theme.colors.blue};
-  }
-  cursor: pointer;
+
+  ${({ plain, theme, success }) => !plain && `
+    border: 1px solid ${theme.colors.softGray};
+    border-radius: 5px;
+    cursor: pointer;
+    :hover {
+      background: ${!!success ? theme.colors.softGreen : theme.colors.lightBlue};
+      border: 1px solid ${!!success ? theme.colors.green : theme.colors.blue};
+    }
+  `}
+  
   ${({ success, theme }) => !!success && `
     background: ${theme.colors.softGreen};
     border: 1px solid ${theme.colors.green};

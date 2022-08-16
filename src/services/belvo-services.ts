@@ -37,6 +37,10 @@ export const GetBelvoInfo = async (params: {
   type: string;
   email: string;
 }): Promise<{
+  accounts?: Array<{
+    mask: string;
+    name: string;
+  }>;
   data?: unknown;
   type?: string;
   message?: string;

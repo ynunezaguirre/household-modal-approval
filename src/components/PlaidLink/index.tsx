@@ -1,13 +1,26 @@
 import React, { useCallback, useEffect } from 'react';
 import { PlaidLinkError, usePlaidLink } from 'react-plaid-link';
+import { PlaidMetadata } from '../../services/plaid-services';
 
 const PlaidLink = (props: Props) => {
   const { token, handleResponse, onCancelPlaid } = props;
 
   const onSuccess = useCallback(
     (public_token, metadata) => {
-      console.log(public_token, metadata);
-      handleResponse(public_token, null);
+      if (metadata?.account) {
+        const data ={
+          institution: {
+            name: metadata.institution.name,
+          },
+          account: [{
+            mask: metadata.account.mask,
+            name: metadata.account.name,
+          }]
+        };
+        handleResponse(public_token, null, data);
+      } else {
+        handleResponse(public_token, null);
+      }
     },
     [],
   );
@@ -37,6 +50,6 @@ const PlaidLink = (props: Props) => {
 type Props = {
   token: string;
   onCancelPlaid: (error: null | PlaidLinkError) => void;
-  handleResponse: (t: string | null, e: ErrorEvent | null) => void;
+  handleResponse: (t: string | null, e: ErrorEvent | null, data?: PlaidMetadata) => void;
 };
 export default PlaidLink;

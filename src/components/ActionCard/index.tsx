@@ -5,10 +5,10 @@ import IconCheck from '../../assets/icon-check-list.svg';
 import Spinner from '../Spinner';
 
 const ActionCard = (props: Props) => {
-  const { title, description, icon, loading, success, onPress } = props;
+  const { title, description, icon, loading, success, onPress, plain } = props;
 
   return (
-    <ActionCardContainer success={success} onClick={() => {
+    <ActionCardContainer plain={plain} success={success} onClick={() => {
       if (onPress && !success && !loading) {
         onPress();
       }
@@ -20,7 +20,7 @@ const ActionCard = (props: Props) => {
           {description}
         </DescriptionActionCard>
       </ContentDescription>
-      {loading ? <Spinner /> : <ArrowAction src={!!success ? IconCheck : IconArrow} />}
+      {loading ? <Spinner /> : !plain ? <ArrowAction src={!!success ? IconCheck : IconArrow} /> : <></>}
       
     </ActionCardContainer>
   )
@@ -33,6 +33,7 @@ type Props = {
   loading?: boolean;
   success?: boolean;
   onPress?: () => void;
+  plain?: boolean;
 };
 
 export default ActionCard;
