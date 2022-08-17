@@ -105,10 +105,10 @@ const InitWidget = () => {
     setIsModalVisible(true);
   };
   const processForm = () => {
-    if (publicToken) {
+    // if (publicToken) {
       setErrorMessage(null);
       setFormLoading(true);
-      ProcessForm(publicToken, email).then((response) => {
+      ProcessForm('', email).then((response) => {
         setFormLoading(false);
         if (response.message) {
           return setErrorMessage(response.message);
@@ -116,7 +116,7 @@ const InitWidget = () => {
         setCreditResponse(response as CreditResponse);
         setPublicToken(null);
       });
-    }
+    // }
   };
 
   const generateToken = (type: string) => {
