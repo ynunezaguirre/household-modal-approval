@@ -246,14 +246,14 @@ const AssetModal = (props: Props) => {
                 <span>{`${acc.name} ****${acc.mask}`}</span>
               )))}
               
-              <RemoveButton onClick={() => removeAccount(index)}>Remove</RemoveButton>
+              <RemoveButton onClick={() => removeAccount(index)}>{enums['ASSET_REMOVE_ACCOUNT']}</RemoveButton>
             </AccountDescription>
             <ArrowAction src={IconCheck} />
           </AccountContainer>
         ))}
         {accounts.length ===  accountsPreparing && (
           <AddContainer>
-            <LinkButton onClick={() => setAccountPreparing(accountsPreparing + 1)}>Add another account</LinkButton>
+            <LinkButton onClick={() => setAccountPreparing(accountsPreparing + 1)}>{enums['ASSET_ADD_ACCOUNT']}</LinkButton>
           </AddContainer>
         )}
         {accounts.length !== accountsPreparing && (
@@ -264,7 +264,7 @@ const AssetModal = (props: Props) => {
             <SelectContainer>
               <SelectCountry value={country} onChange={(e) => countryChange(e.target.value, 0)} disabled={loading}>
                 <option value={""}>{enums['ASSET_SELECT_COUNTRY']}</option>
-                <option value={"USA"}>United State</option>
+                <option value={"USA"}>United States</option>
                 <option value={"MX"}>México</option>
                 <option value={"CO"}>Colombia</option>
                 <option value={"BRA"}>Brasil</option>
