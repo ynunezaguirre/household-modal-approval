@@ -264,10 +264,10 @@ const AssetModal = (props: Props) => {
             <SelectContainer>
               <SelectCountry value={country} onChange={(e) => countryChange(e.target.value, 0)} disabled={loading}>
                 <option value={""}>{enums['ASSET_SELECT_COUNTRY']}</option>
-                <option value={"USA"}>United States</option>
-                <option value={"MX"}>México</option>
-                <option value={"CO"}>Colombia</option>
-                <option value={"BRA"}>Brasil</option>
+                <option value={"USA"}>{enums['COUNTRY_LIST_USA']}</option>
+                <option value={"MX"}>{enums['COUNTRY_LIST_MX']}</option>
+                <option value={"CO"}>{enums['COUNTRY_LIST_CO']}</option>
+                <option value={"BRA"}>{enums['COUNTRY_LIST_BR']}</option>
               </SelectCountry>
             </SelectContainer>
           </CardSelect>

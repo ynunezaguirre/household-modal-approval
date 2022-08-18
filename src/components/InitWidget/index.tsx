@@ -108,7 +108,7 @@ const InitWidget = () => {
     // if (publicToken) {
       setErrorMessage(null);
       setFormLoading(true);
-      ProcessForm('', email).then((response) => {
+      ProcessForm(globalInitial?.enums ? globalInitial?.enums['FORMAT_EMAIL'] : '' || '', email).then((response) => {
         setFormLoading(false);
         if (response.message) {
           return setErrorMessage(response.message);
@@ -123,7 +123,11 @@ const InitWidget = () => {
     const invalidMail = (!isValidEmail || email.trim() === '');
     if (invalidMail || loadingIncome || loadingBank) {
       if (invalidMail) {
-        setErrorMessage('The email is required');
+        if (globalInitial?.enums) {
+          setErrorMessage(globalInitial.enums['EMAIL_IS_REQUIRED']);
+        } else {
+          setErrorMessage('The email is required');
+        }
       }
       return;
     }

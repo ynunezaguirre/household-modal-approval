@@ -64,7 +64,7 @@ export const GetPlaidInfo = async (publicToken: string, type: string, email: str
   }
 };
 
-export const ProcessForm = async (publicToken: string, email: string | null = null): Promise<{
+export const ProcessForm = async (formatEmail: string, email: string | null = null): Promise<{
   credit?: unknown;
   message?: string;
 }> => {
@@ -76,7 +76,7 @@ export const ProcessForm = async (publicToken: string, email: string | null = nu
       service: 'external/process_approval',
       body: {
         email, 
-        publicToken,
+        formatEmail,
       }
     },
     'post');
