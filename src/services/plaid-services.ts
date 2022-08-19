@@ -11,7 +11,7 @@ export interface PlaidMetadata {
 }
 
 
-export const GetPlaidToken = async (type: string, email: string): Promise<{
+export const GetPlaidToken = async (type: string, email: string, language?: string): Promise<{
   message?: string;
   token?: string;
 }> => {
@@ -19,7 +19,7 @@ export const GetPlaidToken = async (type: string, email: string): Promise<{
     const response: {
       linkToken: string;
     } = await callService({
-      service: `external/plaid_token?type=${type}&email=${email}`,
+      service: `external/plaid_token?type=${type}&email=${email}&language=${language || 'en'}`,
     },
     'get');
     if (!response?.linkToken) {

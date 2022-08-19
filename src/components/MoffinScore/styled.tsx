@@ -35,3 +35,12 @@ export const OTPContainer = styled.div`
     text-transform: uppercase;
   }
 `;
+
+export const CopyTextAuth = styled.p`
+  color: ${({ theme }) => theme.colors.black};
+  font-family: ${({ theme }) => theme.fonts.Poppins};
+  font-size: 14px;
+  font-weight: 300;
+  margin: 15px auto;
+  text-align: justify;
+`;

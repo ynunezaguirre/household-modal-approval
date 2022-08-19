@@ -3,7 +3,7 @@ import Modal from "../Modal";
 import Input from "../Input";
 import Button from "../Button";
 import { ActionsButton, CopyText } from "../InitWidget/styled";
-import { Col, Row, ButtonContainer, BackButton, OTPContainer } from "./styled";
+import { Col, Row, ButtonContainer, BackButton, OTPContainer, CopyTextAuth } from "./styled";
 import { ParamsData } from "../../services/api-services";
 import Spinner from "../Spinner";
 import { createProfile, FormType, generateOtp, validateOtp } from "../../services/moffin-services";
@@ -42,13 +42,13 @@ const MoffinScore = (props: Props) => {
   const { enums, email, isVisible, params, callback } = props;
   const [otp, setOtp] = useState('');
   const [formComplete, setFormComplete] = useState(false);
-  const [step, setStep] = useState(STEPS.OTP);
+  const [step, setStep] = useState(STEPS.FORM);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [form, setForm] = useState<null | FormType>(initForm);
   const [otpToken, setOtpToken] = useState<null | string>(null);
 
-  useEffect(() => {
+  const requestAuthorization = () => {
     if (email && isVisible) {
       setLoading(true);
       generateOtp(email).then(res => {
@@ -59,12 +59,13 @@ const MoffinScore = (props: Props) => {
         }
         setOtpToken(data.token);
         setLoading(false);
+        setStep(STEPS.AUTHORIZATION);
       }).catch(error => {
         setErrorMessage(error.message);
         setLoading(false);
       });
     }
-  }, [email, isVisible])
+  };
   
   
 
@@ -97,10 +98,10 @@ const MoffinScore = (props: Props) => {
       func: 'EXTERNAL',
       token: otpToken as string,
     }).then(res => {
-      setLoading(false);
       if (res.data?.success) {
-        setStep(STEPS.FORM);
+        processForm();
       } else {
+        setLoading(false);
         setErrorMessage('Invalid Code');
       }
     }).catch(err => {
@@ -112,7 +113,6 @@ const MoffinScore = (props: Props) => {
 
   const processForm = () => {
     if (form) {
-      setLoading(true);
       setErrorMessage(null);
       createProfile(form, email).then((response) => {
         if (!!response.message) {
@@ -273,19 +273,29 @@ const MoffinScore = (props: Props) => {
           <BackButton onClick={() => onCloseSuccess(false)}>Go back</BackButton>
           <ActionsButton>
             {loading && <Spinner verticalAlign='bottom' />}
-            <Button disabled={!formComplete || loading} label={enums['MOFFIN_BUTTON_CONTINUE']} onClick={() => setStep(STEPS.AUTHORIZATION)} />
+            <Button disabled={!formComplete || loading} label={enums['MOFFIN_BUTTON_CONTINUE']} onClick={() => {
+              requestAuthorization();
+            }} />
           </ActionsButton>
         </ButtonContainer>
       </>
       )}
       {step === STEPS.AUTHORIZATION && (
         <>
-          <CopyText>{enums['MOFFIN_AUTHORIZATION_COPY']}</CopyText>
+          <CopyTextAuth>{enums['MOFFIN_AUTHORIZATION_COPY']}</CopyTextAuth>
+          <OTPContainer>
+            <Input
+              maxLength={OTP_LENGTH}
+              label={enums['MOFFIN_OTP_LABEL']}
+              placeholder={enums['MOFFIN_OTP_LABEL']}
+              onChangeText={setOtp}
+              error={form?.state?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
+          </OTPContainer>
           <ButtonContainer>
             <BackButton onClick={() => setStep(STEPS.FORM)}>{enums['GO_BACK_BUTTON']}</BackButton>
             <ActionsButton>
               {loading && <Spinner verticalAlign='bottom' />}
-              <Button disabled={!formComplete || loading} label={enums['MOFFIN_MODAL_BUTTON']} onClick={processForm} />
+              <Button disabled={otp.length !== OTP_LENGTH || !formComplete || loading} label={enums['MOFFIN_MODAL_BUTTON']} onClick={callValidateOtp} />
             </ActionsButton>
           </ButtonContainer>
         </>

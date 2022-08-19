@@ -171,7 +171,7 @@ const InitWidget = () => {
   };
 
   const plaidTokenFlow = (type: string) => {
-    GetPlaidToken(type, email.trim()).then(tokenResponse => {
+    GetPlaidToken(type, email.trim(), globalInitial?.enums ? globalInitial.enums['PLAID_LANGUAGE'] : 'en').then(tokenResponse => {
       if (tokenResponse.token) {
         setPlaidToken({
           token: tokenResponse.token,

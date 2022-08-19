@@ -89,7 +89,7 @@ const AssetModal = (props: Props) => {
   };
 
   const plaidTokenFlow = () => {
-    GetPlaidToken(CONSTANTS.TYPE_ASSETS, email.trim()).then(tokenResponse => {
+    GetPlaidToken(CONSTANTS.TYPE_ASSETS, email.trim(), enums['PLAID_LANGUAGE'] || 'en').then(tokenResponse => {
       if (tokenResponse.token) {
         setPlaidToken({
           token: tokenResponse.token,
