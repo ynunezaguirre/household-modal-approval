@@ -8,6 +8,7 @@ import { ParamsData } from "../../services/api-services";
 import Spinner from "../Spinner";
 import { createProfile, FormType, generateOtp, validateOtp } from "../../services/moffin-services";
 import { LabelError } from "../Input/styled";
+import GoogleAutoComplete from "../GoogleAutoComplete";
 
 type Props = {
   enums: { [key: string]: string };
@@ -143,6 +144,24 @@ const MoffinScore = (props: Props) => {
     });
   };
 
+  const addressCallback = (p: {
+    postalCode?: string;
+    state?: string;
+    city?: string;
+    neighborhood?: string;
+    fullAddress?: string;
+  }) => {
+    console.log('p', p);
+    setForm({
+      ...form,
+      city: { value: p.city || '', error: false },
+      zipCode: { value: p.postalCode || '', error: false },
+      state: { value: p.state || '', error: false },
+      neighborhood: { value: p.neighborhood || '', error: false },
+      address: { value: p.fullAddress || '', error: false },
+    });
+  };
+
   return <Modal
   top={20}
   visible={isVisible}
@@ -207,14 +226,10 @@ const MoffinScore = (props: Props) => {
             onchangeField('basicRFC', text, text?.length !== 9 && text?.length !== 10);
           }}
           error={form?.basicRFC?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
-        
-        <Input
-          size="small"
-          label={enums['MOFFIN_FIELD_ADDRESS']}
-          placeholder={enums['MOFFIN_FIELD_ADDRESS']}
-          onChangeText={(text) => onchangeField('address', text)}
-          error={form?.address?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
 
+        {!!enums && enums['GOOGLE_PLACE_API'] && (
+          <GoogleAutoComplete label={enums['MOFFIN_FIELD_ADDRESS']} placeholder={enums['MOFFIN_FIELD_ADDRESS']} googleKey={enums['GOOGLE_PLACE_API']} callback={addressCallback} />
+        )}
         <Row>
           <Col>
             <Input
@@ -222,6 +237,7 @@ const MoffinScore = (props: Props) => {
               label={enums['MOFFIN_FIELD_CITY']}
               placeholder={enums['MOFFIN_FIELD_CITY']}
               onChangeText={(text) => onchangeField('city', text)}
+              value={form?.city?.value}
               error={form?.city?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
           </Col>
           {!!params?.states && (
@@ -236,6 +252,7 @@ const MoffinScore = (props: Props) => {
                 })}
                 size="small"
                 label={enums['MOFFIN_FIELD_STATE']}
+                value={form?.state?.value}
                 placeholder={enums['MOFFIN_FIELD_STATE']}
                 onChangeText={(text) => onchangeField('state', text)}
                 error={form?.state?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
@@ -249,6 +266,7 @@ const MoffinScore = (props: Props) => {
               size="small"
               label={enums['MOFFIN_FIELD_ZCODE']}
               placeholder={enums['MOFFIN_FIELD_ZCODE']}
+              value={form?.zipCode?.value}
               onChangeText={(text) => onchangeField('zipCode', text)}
               error={form?.zipCode?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
           </Col>
@@ -266,6 +284,7 @@ const MoffinScore = (props: Props) => {
           size="small"
           label={enums['MOFFIN_FIELD_NGH']}
           placeholder={enums['MOFFIN_FIELD_NGH']}
+          value={form?.neighborhood?.value}
           onChangeText={(text) => onchangeField('neighborhood', text)}
           error={form?.neighborhood?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
 

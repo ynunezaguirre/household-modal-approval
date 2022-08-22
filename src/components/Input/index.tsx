@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { InputStyled, LabelError, LabelInput, SelectStyled } from "./styled";
 
 
 const Input = (props: Props) => {
-  const { placeholder, disabled, onChangeText, error, size, label, type, items, maxLength } = props;
+  const [inputValue, setInputValue] = useState('');
+  const { placeholder, disabled, onChangeText, error, size, label, type, items, maxLength, value } = props;
   return <>
     {!!label && (
       <LabelInput>
@@ -17,8 +18,10 @@ const Input = (props: Props) => {
         placeholder={placeholder} 
         disabled={disabled} 
         sizeInput={size}
+        value={value || inputValue}
         onChange={(e) => {
           e.preventDefault();
+          setInputValue(e.target.value);
           onChangeText(e.target.value);
         }}
       />
@@ -29,8 +32,10 @@ const Input = (props: Props) => {
         disabled={disabled} 
         onChange={(e) => {
           e.preventDefault();
+          setInputValue(e.target.value);
           onChangeText(e.target.value);
         }}
+        value={value || inputValue}
       >
         <option value=""></option>
         {items?.map(item => <option value={item.value}>{item.label}</option>)}
@@ -52,7 +57,8 @@ type Props = {
   items?: Array<{
     label: string;
     value: string;
-  }>
+  }>;
+  value?: string;
 };
 
 export default Input;
