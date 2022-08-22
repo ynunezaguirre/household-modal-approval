@@ -28,7 +28,7 @@ const initForm = {
   state: undefined,
   zipCode: undefined,
   exteriorNumber: undefined,
-  neighborhood: undefined,
+  // neighborhood: undefined,
 };
 
 const STEPS = {
@@ -148,7 +148,7 @@ const MoffinScore = (props: Props) => {
     postalCode?: string;
     state?: string;
     city?: string;
-    neighborhood?: string;
+    // neighborhood?: string;
     fullAddress?: string;
   }) => {
     console.log('p', p);
@@ -157,7 +157,7 @@ const MoffinScore = (props: Props) => {
       city: { value: p.city || '', error: false },
       zipCode: { value: p.postalCode || '', error: false },
       state: { value: p.state || '', error: false },
-      neighborhood: { value: p.neighborhood || '', error: false },
+      // neighborhood: { value: p.neighborhood || '', error: false },
       address: { value: p.fullAddress || '', error: false },
     });
   };
@@ -280,13 +280,13 @@ const MoffinScore = (props: Props) => {
           </Col>
         </Row>
 
-        <Input
+        {/* <Input
           size="small"
           label={enums['MOFFIN_FIELD_NGH']}
           placeholder={enums['MOFFIN_FIELD_NGH']}
           value={form?.neighborhood?.value}
           onChangeText={(text) => onchangeField('neighborhood', text)}
-          error={form?.neighborhood?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
+          error={form?.neighborhood?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} /> */}
 
         <ButtonContainer>
           <BackButton onClick={() => onCloseSuccess(false)}>Go back</BackButton>
