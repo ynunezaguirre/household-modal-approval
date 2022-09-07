@@ -8,7 +8,7 @@ export default {
 } as ComponentMeta<typeof InitWidget>;
 
 const Template: ComponentStory<typeof InitWidget> = args => (
-  <InitWidget {...args} />
+  <InitWidget />
 );
 
 export const Init = Template.bind({});

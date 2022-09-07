@@ -23,6 +23,8 @@ type Props = {
   params?: ParamsData; 
   callback: (s: unknown | null) => void;
   language?: string;
+  openInPlainMode?: boolean;
+  accountsHandler?: (ac: AccountsData[]) => void;
 }
 
 const countries = {
@@ -32,17 +34,19 @@ const countries = {
   BRA: 'BRA',
 };
 
+export interface AccountsData {
+  country: string;
+  data: PlaidMetadata;
+}
+
 const AssetModal = (props: Props) => {
-  const { enums, email, isVisible, callback, language } = props;
+  const { enums, email, isVisible, callback, language, openInPlainMode, accountsHandler } = props;
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
   const [country, setCountry] = useState<string>('');
   const [accountsPreparing, setAccountPreparing] = useState(1);
-  const [accounts, setAccounts] = useState<Array<{
-    country: string;
-    data: PlaidMetadata;
-  }>>([]);
+  const [accounts, setAccounts] = useState<AccountsData[]>([]);
   const [plaidToken, setPlaidToken] = useState<null | {
     token: string;
     type: string;
@@ -59,6 +63,9 @@ const AssetModal = (props: Props) => {
       setIsComplete(true);
     } else {
       setIsComplete(false);
+    }
+    if (!!openInPlainMode && !!accountsHandler) {
+      accountsHandler(accounts);
     }
   }, [accountsPreparing, accounts]);
 
@@ -198,7 +205,6 @@ const AssetModal = (props: Props) => {
 
   const onBelvoResponse = (link: string, institution: any) => {
     if (belvoToken?.token) {
-      console.log(belvoToken, institution);
       GetBelvoInfo({
         institution,
         link,
@@ -225,12 +231,8 @@ const AssetModal = (props: Props) => {
     }
   };
 
-  return <Modal
-    top={20}
-    visible={isVisible}
-    onCancel={cleanAndClose}
-    title={enums['ACTION_CARD_BANK_TITLE']}>
-    <>
+  const renderContent = () => {
+    return <>
       <ActionCard
         title=''
         description={enums['ACTION_CARD_BANK_DESCRIPTION']}
@@ -274,7 +276,8 @@ const AssetModal = (props: Props) => {
         )}
         
 
-        <ButtonContainer>
+        {!openInPlainMode && (
+          <ButtonContainer>
           {!loading && (
             <LinkButton onClick={() => onCloseSuccess(null)}>{enums['GO_BACK_BUTTON']}</LinkButton>
           )}
@@ -283,6 +286,7 @@ const AssetModal = (props: Props) => {
             <Button disabled={!isComplete || loading} label={enums['ASSET_NEXT_BUTTON']} onClick={completeAccountData} />
           </ActionsButton>
         </ButtonContainer>
+        )}
       </>
       {plaidToken?.token && (
         <PlaidLink
@@ -291,8 +295,18 @@ const AssetModal = (props: Props) => {
           handleResponse={handlePlaidResponse} />
       )}
       <div id="belvo"></div>
-    </>
-</Modal>
+    </>;
+  };
+
+  return !openInPlainMode ?
+    <Modal
+      top={20}
+      visible={isVisible}
+      onCancel={cleanAndClose}
+      title={enums['ACTION_CARD_BANK_TITLE']}>
+    {renderContent()}
+    </Modal> :
+    renderContent();
 }
 
 export default AssetModal;
