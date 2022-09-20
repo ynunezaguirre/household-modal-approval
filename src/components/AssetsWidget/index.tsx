@@ -7,7 +7,7 @@ import theme, { GlobalStyle } from '../../configs/theme';
 // import './style.css';
 import Spinner from "../Spinner";
 import { GetInitalData, InitalData } from "../../services/api-services";
-import AssetModal, { AccountsData } from "../AssetModal";
+import AssetModal from "../AssetModal";
 
 declare global {
   interface Window { belvoSDK: any; }
@@ -15,11 +15,12 @@ declare global {
 
 type AssetsWidgetProps = {
   email: string;
-  assetsHandler: (data: AccountsData[]) => void;
+  assetsHandler: (data: unknown[]) => void;
+  setLoading?: (loading: boolean) => void;
 }
 
 const AssetsWidget = (props: AssetsWidgetProps) => {
-  const { email, assetsHandler } = props;
+  const { email, assetsHandler, setLoading } = props;
   const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isAssetVisible, setIsAssetVisible] = useState(false);
 
@@ -61,6 +62,7 @@ const AssetsWidget = (props: AssetsWidgetProps) => {
           callback={() => {}}
           language={globalInitial?.language}
           accountsHandler={assetsHandler}
+          setExternalLoading={setLoading}
           openInPlainMode
         />
       </>

@@ -14,8 +14,13 @@ type Props = {
   enums: { [key: string]: string };
   email: string;
   isVisible: boolean;
-  params?: ParamsData; 
+  params?: ParamsData;
+  reqType?: string;
   callback: (s: boolean) => void;
+  inputData?: {
+    firstname?: string;
+    lastname?: string;
+  };
 }
 
 const initForm = {
@@ -40,14 +45,38 @@ const STEPS = {
 const OTP_LENGTH = 6;
 
 const MoffinScore = (props: Props) => {
-  const { enums, email, isVisible, params, callback } = props;
+  const { enums, email, isVisible, params, callback, reqType, inputData } = props;
   const [otp, setOtp] = useState('');
   const [formComplete, setFormComplete] = useState(false);
   const [step, setStep] = useState(STEPS.FORM);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [form, setForm] = useState<null | FormType>(initForm);
+  const [form, setForm] = useState<null | FormType>({
+    ...initForm,
+    firstName: {
+      value: inputData?.firstname,
+      error: false,
+    },
+    firstLastName: {
+      value: inputData?.lastname,
+      error: false,
+    },
+  });
   const [otpToken, setOtpToken] = useState<null | string>(null);
+  const [fieldsValues, setFieldsValues] = useState<{
+    firstname?: string;
+    lastname?: string;
+  }>({
+    firstname: '',
+    lastname: '',
+  });
+
+  useEffect(() => {
+    if (!!inputData) {
+      setFieldsValues(inputData);
+    }
+  }, [inputData])
+  
 
   const requestAuthorization = () => {
     if (email && isVisible) {
@@ -115,7 +144,7 @@ const MoffinScore = (props: Props) => {
   const processForm = () => {
     if (form) {
       setErrorMessage(null);
-      createProfile(form, email).then((response) => {
+      createProfile(form, email, reqType).then((response) => {
         if (!!response.message) {
           setLoading(false);
           setErrorMessage(response.message);
@@ -166,7 +195,7 @@ const MoffinScore = (props: Props) => {
   top={20}
   visible={isVisible}
   onCancel={cleanAndClose}
-  title={enums['MOFFIN_MODAL_TITLE']}>
+  title={enums[`MOFFIN_MODAL_TITLE${reqType ? '_'+reqType : ''}`]}>
     <>
       {!!errorMessage && <LabelError>{errorMessage}</LabelError>}
       {step === STEPS.OTP && (
@@ -191,12 +220,19 @@ const MoffinScore = (props: Props) => {
       )}
       {step === STEPS.FORM && (
         <>
-        <CopyText>{enums['MOFFIN_COPY']}</CopyText>
+        <CopyText>{enums[`MOFFIN_COPY${reqType ? '_'+reqType : ''}`]}</CopyText>
         <Input
           label={enums['MOFFIN_FIELD_NAME']}
           size="small"
           placeholder={enums['MOFFIN_FIELD_NAME']}
-          onChangeText={(text) => onchangeField('firstName', text)}
+          value={fieldsValues.firstname}
+          onChangeText={(text) => {
+            setFieldsValues({
+              ...fieldsValues,
+              firstname: text,
+            })
+            onchangeField('firstName', text);
+          }}
           error={form?.firstName?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
 
         <Row>
@@ -204,8 +240,15 @@ const MoffinScore = (props: Props) => {
             <Input
               size="small"
               label={enums['MOFFIN_FIELD_LASTNAME_1']}
+              value={fieldsValues.lastname}
               placeholder={enums['MOFFIN_FIELD_LASTNAME_1']}
-              onChangeText={(text) => onchangeField('firstLastName', text)}
+              onChangeText={(text) => {
+                setFieldsValues({
+                  ...fieldsValues,
+                  lastname: text,
+                })
+                onchangeField('firstLastName', text)
+              }}
               error={form?.firstLastName?.error ?  enums['MOFFIN_FIELD_REQUIRED'] : null} />
           </Col>
           <Col>

@@ -43,7 +43,7 @@ export type FormType = {
   }
 };
 
-export const createProfile = async (form: FormType, email: string): Promise<{
+export const createProfile = async (form: FormType, email: string, reqType?: string): Promise<{
   data?: unknown;
   message?: string;
 }> => {
@@ -60,7 +60,7 @@ export const createProfile = async (form: FormType, email: string): Promise<{
       message?: string;
     } = await callService({
       service: 'external/moffin/create_profile',
-      body: { profile, email },
+      body: { profile, email, serviceRequest: reqType },
     },
     'post');
     if (!response?.data) {
