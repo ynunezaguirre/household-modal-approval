@@ -6,7 +6,7 @@ import { ThemeProvider } from 'styled-components';
 import theme, { GlobalStyle } from '../../configs/theme';
 // import './style.css';
 import Spinner from "../Spinner";
-import { GetInitalData, InitalData } from "../../services/api-services";
+import { changeServerURL, GetInitalData, InitalData, ServerURLType } from "../../services/api-services";
 import AssetModal from "../AssetModal";
 
 declare global {
@@ -17,14 +17,18 @@ type AssetsWidgetProps = {
   email: string;
   assetsHandler: (data: unknown[]) => void;
   setLoading?: (loading: boolean) => void;
+  env?: string;
 }
 
 const AssetsWidget = (props: AssetsWidgetProps) => {
-  const { email, assetsHandler, setLoading } = props;
+  const { email, assetsHandler, setLoading, env } = props;
   const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isAssetVisible, setIsAssetVisible] = useState(false);
 
   useEffect(() => {
+    if (!!env) {
+      changeServerURL(env as ServerURLType);
+    }
     GetInitalData().then(response => {
       setGlobalInital(response);
     });

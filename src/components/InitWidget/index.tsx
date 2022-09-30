@@ -29,7 +29,7 @@ import Input from "../Input";
 import { validateEmail } from "../../utils";
 import Spinner from "../Spinner";
 import { PlaidLinkError } from "react-plaid-link";
-import { GetInitalData, InitalData } from "../../services/api-services";
+import { changeServerURL, GetInitalData, InitalData, ServerURLType } from "../../services/api-services";
 import MoffinScore from "../MoffinScore";
 import AssetModal from "../AssetModal";
 
@@ -51,7 +51,11 @@ const CREDIT_SCORE_SERVICES = {
   MOFFIN: 'MOFFIN',
 };
 
-const InitWidget = () => {
+type InitWidgetProps = {
+  env?: string;
+}
+
+const InitWidget = (props?: InitWidgetProps) => {
   const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMoffinVisible, setIsMoffinVisible] = useState(false);
@@ -75,6 +79,9 @@ const InitWidget = () => {
   const [creditResponse, setCreditResponse] = useState<null | CreditResponse>(null);
 
   useEffect(() => {
+    if (!!props?.env) {
+      changeServerURL(props.env as ServerURLType);
+    }
     GetInitalData().then(response => {
       setGlobalInital(response);
     });
