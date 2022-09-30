@@ -12,9 +12,29 @@ interface Props {
 }
 
 export const axiosInstance = axios.create({
-  // baseURL: 'https://api.usehousehold.com/v1',
-  baseURL: 'http://localhost:5000/v1',
+  baseURL: 'https://api.usehousehold.com/v1',
+  // baseURL: 'http://localhost:5000/v1',
 });
+
+export enum ServerURLType {
+  local = 'local',
+  production = 'production',
+  development = 'development',
+}
+
+export const changeServerURL = (type: ServerURLType) => {
+  switch (type) {
+    case ServerURLType.local:
+      axiosInstance.defaults.baseURL = 'http://localhost:5000/v1';
+      break;
+    case ServerURLType.development:
+      axiosInstance.defaults.baseURL = 'https://apidev.usehousehold.com/v1';
+      break;
+    case ServerURLType.production:
+      axiosInstance.defaults.baseURL = 'https://api.usehousehold.com/v1';
+      break;
+  }
+};
 
 axiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
   return config;

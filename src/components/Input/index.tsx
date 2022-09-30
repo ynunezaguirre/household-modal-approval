@@ -7,7 +7,7 @@ const Input = (props: Props) => {
   const { placeholder, disabled, onChangeText, error, size, label, type, items, maxLength, value } = props;
   return <>
     {!!label && (
-      <LabelInput>
+      <LabelInput sizeInput={size}>
         {label}
         {!!error && <span>{error}</span>}
       </LabelInput>

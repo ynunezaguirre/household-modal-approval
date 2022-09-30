@@ -94,7 +94,7 @@ const GoogleAutoComplete = (props: Props) => {
   return (
     <Inputcontainer>
       {!!label && (
-        <LabelInput>{label}</LabelInput>
+        <LabelInput sizeInput={'small'}>{label}</LabelInput>
       )}
       <InputStyled
         sizeInput={'small'}

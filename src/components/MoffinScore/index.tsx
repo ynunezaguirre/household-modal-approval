@@ -114,7 +114,7 @@ const MoffinScore = (props: Props) => {
   const cleanAndClose = () => {
     setOtp('');
     setLoading(false);
-    setStep(STEPS.OTP);
+    setStep(STEPS.FORM);
     setErrorMessage(null);
     setOtpToken(null);
   };

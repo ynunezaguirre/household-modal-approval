@@ -17,7 +17,7 @@ export const InputStyled = styled.input<InputType>`
   margin: auto;
   margin-bottom: 10px;
   margin-top: 10px;
-  width: calc(100% - 40px);
+  width: calc(100% - 20px);
   :focus-visible {
     border: none;
     outline: 0;
@@ -25,14 +25,19 @@ export const InputStyled = styled.input<InputType>`
   ${({ sizeInput, theme }) => sizeInput === 'small' && `
     padding: 7px 10px;
     font-size: 14px;
-    color: ${theme.colors.inputSmall};
+    color: ${theme.colors.black};
+    font-weight: 400;
     margin-top: 5px;
     margin-bottom: 15px;
   `}
 `;
 
-export const LabelInput = styled.span`
-  color: ${({ theme }) => theme.colors.black};
+type LabelInputType = {
+  sizeInput?: string;
+};
+
+export const LabelInput = styled.span<LabelInputType>`
+  color: ${({ theme, sizeInput }) => sizeInput === 'small' ? theme.colors.blue : theme.colors.black};
   font-family: ${({ theme }) => theme.fonts.Poppins};
   font-size: 14px;
   font-weight: 400;
