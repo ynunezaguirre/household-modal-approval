@@ -7,14 +7,14 @@ const PlaidLink = (props: Props) => {
 
   const onSuccess = useCallback(
     (public_token, metadata) => {
-      if (metadata?.account) {
+      if (metadata?.institution || metadata?.account) {
         const data ={
           institution: {
-            name: metadata.institution.name,
+            name: metadata.institution?.name,
           },
           account: [{
-            mask: metadata.account.mask,
-            name: metadata.account.name,
+            mask: metadata.account?.mask,
+            name: metadata.account?.name,
           }]
         };
         handleResponse(public_token, null, data);
@@ -39,7 +39,6 @@ const PlaidLink = (props: Props) => {
 
   useEffect(() => {
     if (error) {
-      console.log('error', error);
       handleResponse(null, error)
     }
   }, [error]);

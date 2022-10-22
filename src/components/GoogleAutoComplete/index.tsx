@@ -18,7 +18,6 @@ const GoogleAutoComplete = (props: Props) => {
 
   useEffect(() => {
     if (googleKey && !scriptLoaded) {
-      console.log('key', googleKey);
       loadScript(
         `https://maps.googleapis.com/maps/api/js?key=${googleKey}&libraries=places`,
         () => handleScriptLoad(autoCompleteRef)
@@ -87,7 +86,6 @@ const GoogleAutoComplete = (props: Props) => {
   async function handlePlaceSelect() {
     const addressObject = autoComplete.getPlace();
     setAddressComponent(addressObject.address_components);
-    console.log((autoCompleteRef.current as any).value);
     setQuery((autoCompleteRef.current as any).value);
   }
 

@@ -180,7 +180,6 @@ const MoffinScore = (props: Props) => {
     // neighborhood?: string;
     fullAddress?: string;
   }) => {
-    console.log('p', p);
     setForm({
       ...form,
       city: { value: p.city || '', error: false },
