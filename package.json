@@ -1,6 +1,6 @@
 {
   "name": "@ynunezaguirre/household-modal-approval",
-  "version": "0.0.53",
+  "version": "0.0.54",
   "description": "",
   "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",

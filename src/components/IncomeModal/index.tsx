@@ -38,12 +38,7 @@ const IncomeModal = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
-  const [incomeData, setIncomeData] = useState<null | PlaidMetadata>({
-    institution: {
-      name: "Amz a to z",
-    },
-    account: [],
-  });
+  const [incomeData, setIncomeData] = useState<null | PlaidMetadata>(null);
   const [plaidToken, setPlaidToken] = useState<null | {
     token: string;
     type: string;
