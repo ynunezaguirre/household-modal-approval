@@ -13,5 +13,5 @@ const Template: ComponentStory<typeof AssetsWidget> = args => (
 
 export const Init = Template.bind({});
 Init.args = {
-  email: 'mail@mail.com'
+  email: 'mail@mail.com',
 };

@@ -18,10 +18,11 @@ type AssetsWidgetProps = {
   assetsHandler: (data: unknown[]) => void;
   setLoading?: (loading: boolean) => void;
   env?: string;
+  noAction?: boolean;
 }
 
 const AssetsWidget = (props: AssetsWidgetProps) => {
-  const { email, assetsHandler, setLoading, env } = props;
+  const { email, assetsHandler, setLoading, env, noAction } = props;
   const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isAssetVisible, setIsAssetVisible] = useState(false);
 
@@ -67,6 +68,7 @@ const AssetsWidget = (props: AssetsWidgetProps) => {
           language={globalInitial?.language}
           accountsHandler={assetsHandler}
           setExternalLoading={setLoading}
+          noAction={noAction}
           openInPlainMode
         />
       </>

@@ -24,6 +24,7 @@ type Props = {
   callback: (s: unknown | null) => void;
   language?: string;
   openInPlainMode?: boolean;
+  noAction?: boolean;
   accountsHandler?: (ac: unknown[]) => void;
   setExternalLoading?: (loading: boolean) => void;
 }
@@ -41,7 +42,7 @@ export interface AccountsData {
 }
 
 const AssetModal = (props: Props) => {
-  const { enums, email, isVisible, callback, language, openInPlainMode, accountsHandler, setExternalLoading } = props;
+  const { enums, email, isVisible, callback, language, openInPlainMode, noAction, accountsHandler, setExternalLoading } = props;
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
@@ -266,7 +267,7 @@ const AssetModal = (props: Props) => {
             <LinkButton onClick={() => setAccountPreparing(accountsPreparing + 1)}>{enums['ASSET_ADD_ACCOUNT']}</LinkButton>
           </AddContainer>
         )}
-        {accounts.length !== accountsPreparing && (
+        {accounts.length !== accountsPreparing && !noAction && (
           <CardSelect>
             {!loading && (
               <CloseButton onClick={() => setAccountPreparing(accountsPreparing - 1)}>&#10006;</CloseButton>

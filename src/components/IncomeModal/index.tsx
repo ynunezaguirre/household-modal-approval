@@ -24,6 +24,7 @@ type Props = {
   callback: (s: unknown | null) => void;
   language?: string;
   openInPlainMode?: boolean;
+  noAction?: boolean;
   incomeHandler?: (income: unknown) => void;
   setExternalLoading?: (loading: boolean) => void;
 }
@@ -34,7 +35,7 @@ export interface AccountsData {
 }
 
 const IncomeModal = (props: Props) => {
-  const { enums, email, isVisible, callback, language, openInPlainMode, incomeHandler, setExternalLoading } = props;
+  const { enums, email, isVisible, callback, language, openInPlainMode, noAction, incomeHandler, setExternalLoading } = props;
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isComplete, setIsComplete] = useState(false);
@@ -147,7 +148,7 @@ const IncomeModal = (props: Props) => {
           </IncomeContainer>
         )}
 
-        {!incomeData && (
+        {!incomeData && !noAction && (
           <ActionIncomeContainer>
             <ActionsButton>
               {loading && <Spinner verticalAlign='bottom' />}

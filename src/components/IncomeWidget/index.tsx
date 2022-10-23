@@ -14,10 +14,11 @@ type IncomeWidgetProps = {
   incomeHandler: (data: unknown) => void;
   setLoading?: (loading: boolean) => void;
   env?: string;
+  noAction?: boolean;
 }
 
 const IncomeWidget = (props: IncomeWidgetProps) => {
-  const { email, incomeHandler, setLoading, env } = props;
+  const { email, incomeHandler, setLoading, noAction, env } = props;
   const [globalInitial, setGlobalInital] = useState<InitalData | null>(null);
   const [isAssetVisible] = useState(false);
 
@@ -53,6 +54,7 @@ const IncomeWidget = (props: IncomeWidgetProps) => {
           language={globalInitial?.language}
           incomeHandler={incomeHandler}
           setExternalLoading={setLoading}
+          noAction={noAction}
           openInPlainMode
         />
       </>
