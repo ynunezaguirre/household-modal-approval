@@ -7,7 +7,7 @@ import { GetPlaidToken, GetPlaidInfo, PlaidMetadata } from "../../services/plaid
 import Spinner from "../Spinner";
 import { LabelError } from "../Input/styled";
 import ActionCard from "../ActionCard";
-import IconBancaria from '../../assets/info-bancaria.png';
+import IconIngresos from '../../assets/info-ingresos.png';
 import IconCheck from '../../assets/icon-check-list.svg';
 import { CONSTANTS } from "../../configs/constants";
 import PlaidLink from "../PlaidLink";
@@ -136,15 +136,15 @@ const IncomeModal = (props: Props) => {
     return <>
       <ActionCard
         title=""
-        description={enums['ACTION_CARD_BANK_DESCRIPTION']}
-        icon={IconBancaria}
+        description={enums['ACTION_CARD_INCOME_DESCRIPTION']}
+        icon={IconIngresos}
         plain />
       {!!errorMessage && <LabelError>{errorMessage}</LabelError>}
       <>
         {incomeData?.institution && (
           <IncomeContainer>
             <IncomeDescription>
-              <span>{enums['ASSET_REMOVE_ACCOUNT']}</span>
+              <span>{enums['INCOME_LABEL_COMPANY']}</span>
               {incomeData.institution.name}
               <RemoveButton onClick={() => removeIncome()}>{enums['ASSET_REMOVE_ACCOUNT']}</RemoveButton>
             </IncomeDescription>
